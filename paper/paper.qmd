@@ -1,13 +1,11 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Homeless Shelter Usage Trends and Mortality: A Correlation Analysis"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Maroosh Gillani
+thanks: "Code and data are available at: https://github.com/Maroosh-Gillani/homeless_mortality."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This paper investigates the relationship between homeless shelter usage trends and mortality among those experiencing homelessness in Toronto. Using datasets from Open Data Toronto, I analyzed patterns of shelter occupancy and transitions alongside occurrences of death among homeless individuals on a yearly basis. The findings reveal a significant correlation between shelter use patterns such as returns to shelters, and an increased risk of mortality in those months. Understanding these correlations showcases the dynamics between shelter access, economic instability, and mortality risks faced by those experiencing homelessness in Toronto, hoping to illuminate these issues, raise awareness, and to prompt reflection on potential avenues for assisting these individuals."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -25,196 +23,43 @@ library(palmerpenguins)
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+In Toronto, homelessness remains a persistent social issue with profound implications for public health and social welfare [@homelessNewsArticle]. Amidst efforts to address homelessness, understanding the intricate dynamics between shelter usage patterns and mortality risks among individuals experiencing homelessness is crucial. This paper delves into this relationship, aiming to shed light on the underlying factors that contribute to mortality within this vulnerable population.
 
-The remainder of this paper is structured as follows. @sec-data....
+Using data sets sourced from Open Data Toronto [@opendatatoronto], this study examines the interplay between homeless shelter usage trends and mortality among individuals experiencing homelessness in Toronto. By analyzing patterns of shelter occupancy, transitions, and occurrences of death on a yearly basis, I aim to highlight the connections between shelter access, economic instability, and mortality risks faced by those without stable housing. Additionally, I will employ a logistic regression model to further explore the relationships between shelter usage patterns and mortality outcomes, providing statistical insights into these dynamics.
 
+The findings of this study reveal a notable correlation between specific shelter use patterns, such as returning to shelters, and an increased risk of mortality during certain months. This contributes to the understanding of challenges faced by individuals experiencing homelessness and emphasizes the importance of targeted interventions to address mortality risks within this population.
 
+By discussing these issues and raising awareness of the interconnected factors influencing homelessness and mortality, this paper aims to encourage reflection on potential ways to support individuals experiencing homelessness in Toronto. Through this exploration, I aim to underscore the significance of addressing the underlying causes of homelessness and advocating for approaches to safeguard the well-being and dignity of all members of society.
 
 # Data {#sec-data}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+All data collection and analysis was done using statistical tools such as R [@citeR].
 
-```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
-#| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
-#| message: false
-
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
-```
-
-Talk way more about it. 
-
-
+# Measurement
 
 # Model
 
-The goal of our modelling strategy is twofold. Firstly,...
+```{r}
+#| include: false
+#| warning: false
+#| message: false
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+# consider using logistic regression -> usage patterns (independent variables) and mortality (dependent variable).
+```
 
 ## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
 
 
 ### Model justification
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
 
 # Results
-
-Our results are summarized in @tbl-modelresults.
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
-
 
 
 # Discussion
 
-## First discussion point {#sec-first-point}
-
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
 
 \newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
-
-
-
-\newpage
-
 
 # References
 
