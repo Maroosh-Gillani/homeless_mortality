@@ -16,24 +16,13 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+# load libraries
 library(tidyverse)
-library(palmerpenguins)
+library(here)
+library(ggplot2)
 
-
-
-
-# THIS IS TEMPORARILY HERE -- POISSON MODEL GRAPH
-predicted_counts <- predict(poisson_model, type = "response")
-
-# Create a scatter plot of observed vs. predicted counts
-plot(cleaned_data$Returned.to.shelter, cleaned_data$Deaths, 
-     xlab = "Returned to shelter", ylab = "Deaths",
-     main = "Observed vs. Predicted Counts",
-     pch = 16, col = "blue")
-lines(cleaned_data$Returned.to.shelter, predicted_counts, col = "red", type = "l", lwd = 2)
-legend("topright", legend = c("Observed", "Predicted"), 
-       col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1), lwd = c(NA, 2))
-
+# read in cleaned data
+cleaned_data = read.csv(file=here("data/clean_data/cleaned_data.csv"))
 ```
 
 
@@ -60,7 +49,18 @@ All data collection and analysis was done using statistical tools such as R [@ci
 #| warning: false
 #| message: false
 
-# consider using logistic regression -> usage patterns (independent variables) and mortality (dependent variable).
+
+# THIS IS TEMPORARILY HERE -- POISSON MODEL GRAPH
+#predicted_counts <- predict(poisson_model, type = "response")
+
+# Create a scatter plot of observed vs. predicted counts
+#plot(cleaned_data$Returned.to.shelter, cleaned_data$Deaths, 
+#     xlab = "Returned to shelter", ylab = "Deaths",
+#     main = "Observed vs. Predicted Counts",
+#     pch = 16, col = "blue")
+#lines(cleaned_data$Returned.to.shelter, predicted_counts, col = "red", type = "l", lwd = 2)
+#legend("topright", legend = c("Observed", "Predicted"), 
+#       col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1), lwd = #c(NA, 2))
 ```
 
 ## Model set-up
@@ -70,7 +70,46 @@ All data collection and analysis was done using statistical tools such as R [@ci
 
 
 # Results
+```{r graph1, fig.cap="temp"}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-1
 
+# graph monthly homeless deaths over 2018 - 2022
+
+# Convert Month.Year to factor to preserve the order of months
+cleaned_data$Month.Year <- factor(cleaned_data$Month.Year, levels = unique(cleaned_data$Month.Year))
+
+ggplot(cleaned_data, aes(x = Month.Year, y = Deaths)) +
+  geom_line(aes(group = 1), color = "red", size = 1) +
+  labs(x = "Month/Year", y = "Deaths", title = "Monthly Homeless Deaths") +
+  scale_x_discrete(breaks = cleaned_data$Month.Year[seq(1, length(cleaned_data$Month.Year), by = 6)]) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+@fig-1 says this that and whatever.
+
+```{r graph2, fig.cap="temp2"}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-2
+
+# graph monthly returns to shelters over 2018 - 2022
+
+# Convert Month.Year to factor to preserve the order of months
+cleaned_data$Month.Year <- factor(cleaned_data$Month.Year, levels = unique(cleaned_data$Month.Year))
+
+ggplot(cleaned_data, aes(x = Month.Year, y = Returned.to.shelter)) +
+  geom_line(aes(group = 1), color = "blue", size = 1) +
+  labs(x = "Month/Year", y = "Returns to Homeless Shelters", title = "Monthly Returns to Homeless Shelters") +
+  scale_x_discrete(breaks = cleaned_data$Month.Year[seq(1, length(cleaned_data$Month.Year), by = 6)]) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+@fig-2 says some stuff, other stuff and also stuff
 
 # Discussion
 
