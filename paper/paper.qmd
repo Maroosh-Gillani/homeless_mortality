@@ -18,6 +18,22 @@ bibliography: references.bib
 
 library(tidyverse)
 library(palmerpenguins)
+
+
+
+
+# THIS IS TEMPORARILY HERE -- POISSON MODEL GRAPH
+predicted_counts <- predict(poisson_model, type = "response")
+
+# Create a scatter plot of observed vs. predicted counts
+plot(cleaned_data$Returned.to.shelter, cleaned_data$Deaths, 
+     xlab = "Returned to shelter", ylab = "Deaths",
+     main = "Observed vs. Predicted Counts",
+     pch = 16, col = "blue")
+lines(cleaned_data$Returned.to.shelter, predicted_counts, col = "red", type = "l", lwd = 2)
+legend("topright", legend = c("Observed", "Predicted"), 
+       col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1), lwd = c(NA, 2))
+
 ```
 
 
