@@ -54,7 +54,7 @@ clean_data <- clean_data %>%
 # Rename columns
 clean_data <- clean_data %>%
   rename(`Returned to shelter` = returned_to_shelter,
-         `Month/Year` = Year_Month)
+         `Month/Year` = Year_Month, `Deaths` = Count)
 
 #### Save data ####
 write_csv(clean_data, "data/clean_data/cleaned_data.csv")
