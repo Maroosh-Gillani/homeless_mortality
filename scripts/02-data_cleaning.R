@@ -9,6 +9,7 @@
 #### Workspace setup ####
 library(tidyverse)
 library(dplyr)
+library(arrow)
 
 #### Clean data ####
 raw_death_data <- read_csv("data/raw_data/raw_homeless_death_data.csv")
@@ -58,3 +59,5 @@ clean_data <- clean_data %>%
 
 #### Save data ####
 write_csv(clean_data, "data/clean_data/cleaned_data.csv")
+write_parquet(clean_data, "data/clean_data/cleaned_data.parquet")
+
