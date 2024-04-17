@@ -9,7 +9,6 @@
 #### Workspace setup ####
 library(tidyverse)
 library(here)
-library(rstanarm)
 
 #### Read data ####
 cleaned_data = read.csv(file=here("data/clean_data/cleaned_data.csv"))

@@ -20,6 +20,7 @@ bibliography: references.bib
 library(tidyverse)
 library(here)
 library(ggplot2)
+library(knitr)
 
 # read in cleaned data
 cleaned_data = read.csv(file=here("data/clean_data/cleaned_data.csv"))
@@ -28,21 +29,25 @@ cleaned_data = read.csv(file=here("data/clean_data/cleaned_data.csv"))
 
 # Introduction
 
-In Toronto, homelessness remains a persistent social issue with profound implications for public health and social welfare [@homelessNewsArticle]. Amidst efforts to address homelessness, understanding the intricate dynamics between shelter usage patterns and mortality risks among individuals experiencing homelessness is crucial. This paper delves into this relationship, aiming to shed light on the underlying factors that contribute to mortality within this vulnerable population.
+In Toronto, homelessness remains a persistent social issue with significant implications for public health and social welfare [@homelessNewsArticle]. Amidst efforts to address homelessness, understanding the dynamics between shelter usage patterns and mortality risks among individuals experiencing homelessness is crucial. This paper looks into this relationship, aiming to analyze the underlying factors that contribute to mortality within this vulnerable population.
 
-Using data sets sourced from Open Data Toronto [@opendatatoronto], this study examines the interplay between homeless shelter usage trends and mortality among individuals experiencing homelessness in Toronto. By analyzing patterns of shelter occupancy, transitions, and occurrences of death on a yearly basis, I aim to highlight the connections between shelter access, economic instability, and mortality risks faced by those without stable housing. Additionally, I will employ a logistic regression model to further explore the relationships between shelter usage patterns and mortality outcomes, providing statistical insights into these dynamics.
+Using data sets sourced from Open Data Toronto [@opendatatoronto], this study examines the interplay between homeless shelter usage trends, particularly returns to homeless shelters per month, and monthly mortality among individuals experiencing homelessness in Toronto. By analyzing patterns of shelter occupancy, transitions, and occurrences of death on a monthly basis, I aim to highlight the connections between shelter access, economic instability, and mortality risks faced by those without stable housing. Additionally, I will employ a poisson regression model to further explore the relationships between shelter return patterns and mortality outcomes, providing statistical insights into this dynamic.
 
-The findings of this study reveal a notable correlation between specific shelter use patterns, such as returning to shelters, and an increased risk of mortality during certain months. This contributes to the understanding of challenges faced by individuals experiencing homelessness and emphasizes the importance of targeted interventions to address mortality risks within this population.
+The findings of this study reveal a notable correlation between the pattern of returning to shelters, and an increased risk of mortality during certain months. This contributes to the understanding of challenges faced by individuals experiencing homelessness and emphasizes the importance of targeted interventions to address mortality risks within this population.
 
 By discussing these issues and raising awareness of the interconnected factors influencing homelessness and mortality, this paper aims to encourage reflection on potential ways to support individuals experiencing homelessness in Toronto. Through this exploration, I aim to underscore the significance of addressing the underlying causes of homelessness and advocating for approaches to safeguard the well-being and dignity of all members of society.
 
 # Data {#sec-data}
 
-All data collection and analysis was done using statistical tools such as R [@citeR].
+This paper uses data sets from OpenDataToronto [@opendatatoronto], which provides access to freely available digital data from the city of Toronto. In particular, the "Deaths of People Experiencing Homelessness" and "Toronto Shelter System Flow" data sets are being utilized for the purposes of analyzing the number of people returning to homeless shelters, and the number of homeless people who passed away over the time period of 2018 to 2022.
+
+All data collection, analysis, modeling and visualization was done using R [@citeR]. In particular, the following packages were utilized: tidyverse [@tidyverse], ggplot2 [@citeggplot2], here [@citehere], knitr [@citeknitr], arrow [@citearrow], dplyr [@citedplyr], and haven [@citehaven].
 
 # Measurement
 
 # Model
+
+MAKE A NULL HYPOTHESIS AND ALTERNATE HYPOTHESIS FOR POISSON REGRESSION
 
 ```{r}
 #| include: false
@@ -88,7 +93,7 @@ ggplot(cleaned_data, aes(x = Month.Year, y = Deaths)) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
-@fig-1 says this that and whatever.
+@fig-1 shows that deaths among homeless people in Toronto, while fluctuating significantly over the months, are following a general trend of growth. Each year, the deaths have a consistent peak around winter time, especially near the month of January. The highest number of homeless deaths in Toronto seem to have occurred in the November of 2021, while the lowest amount of deaths recorded are in December of 2018.
 
 ```{r graph2, fig.cap="temp2"}
 #| echo: false
@@ -109,7 +114,29 @@ ggplot(cleaned_data, aes(x = Month.Year, y = Returned.to.shelter)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-@fig-2 says some stuff, other stuff and also stuff
+@fig-2, while also fluctuating significantly, seems to follow a negative pattern for returns of homeless people to shelters. The returns are at their peak in November of 2019. In contrast, September of 2022 saw the least amount of Toronto's homeless population return to a shelter.
+
+```{r graph3, fig.cap="temp3"}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-3
+
+poisson_model <- readRDS(here("models/poisson_model.rds"))
+
+model_summary <- summary(poisson_model)
+
+model_summary_df <- as.data.frame(model_summary$coefficients)
+
+model_table <- knitr::kable(model_summary_df)
+
+model_table
+```
+@fig-3 shows the results from the Poisson regression conducted on the cleaned dataset. The aim of this model was to investigate the relationship between the number of homeless deaths and the number of individuals returning to homeless shelters. In particular, "Returned to shelter" was used as the sole predictor variable for monthly homeless deaths.
+
+Firstly, the intercept represents the estimated log count of homeless deaths when the predictor variable is 0. Here, we can see that it is 3.0368 (with SE = 0.1828, z = 16.6157 and p = 0), which represents the base level of homeless deaths when no individuals are returning to shelters.
+
+The estimated coefficient for Returned to shelter is approximately -0.0011 (with SE = 0.0004, z = -2.6511, and p = 0.0080). This represents the estimated change in the log count of homeless deaths in relation with a one unit increase in the number of individuals returning to homeless shelters per month. Since the coefficient is negative, the average increase of people returning to homeless shelters can be associated with a decrease in the number of homeless death. 
 
 # Discussion
 
