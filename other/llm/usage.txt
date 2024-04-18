@@ -1,5 +1,5 @@
 LLM: ChatGPT-3.5.
-Date: 1 April 2024
+Date: 18 April 2024
 
 User
 consider the following 2 datasets:
@@ -158,3 +158,249 @@ User
 a bit shorter would be nice
 ChatGPT
 "Homeless Shelter Usage Trends and Mortality: A Correlation Analysis"
+
+let's say I have 2 datasets right:
+
+one is homeless deaths per year
+
+the other is: homeless people returning to shelters per year, homeless people moved to housing per year
+
+what are some models I can use to model the relationship between the 2 datasets
+ChatGPT
+Given the nature of your datasets, where you have counts of homeless deaths per year and counts of homeless individuals returning to shelters and being moved to housing per year, you could consider the following models to explore the relationship between them:
+
+Poisson Regression: Since your data consists of counts (number of deaths, number of homeless individuals returning to shelters, number of homeless individuals moved to housing) per year, Poisson regression could be a suitable model. Poisson regression can help you analyze the association between the counts of deaths and the counts of individuals returning to shelters or moving to housing, while accounting for the time (year) as a predictor.
+Negative Binomial Regression: If the assumption of Poisson regression of equidispersion (mean equal to variance) is violated, you might consider negative binomial regression. This model is appropriate for overdispersed count data, where the variance exceeds the mean. Negative binomial regression allows for more flexibility in modeling the relationship between the counts of deaths and the counts of individuals returning to shelters or moving to housing per year.
+Time Series Analysis: Since your data are collected over multiple years, you could also explore time series analysis techniques. Time series models such as ARIMA (Autoregressive Integrated Moving Average) or SARIMA (Seasonal ARIMA) can capture temporal patterns and trends in both the counts of deaths and the counts of individuals returning to shelters or moving to housing over time.
+Generalized Linear Models (GLMs): You can also consider using generalized linear models (GLMs) with appropriate link functions for count data, such as the log-link function for Poisson regression or the logit-link function for binomial regression. This allows you to model the relationship between the counts of deaths and the counts of individuals returning to shelters or moving to housing, while potentially incorporating additional predictor variables if available.
+Correlation Analysis: Finally, you can perform correlation analysis to explore the relationship between the counts of deaths and the counts of individuals returning to shelters or moving to housing per year. You could calculate correlation coefficients such as Pearson correlation or Spearman correlation to quantify the strength and direction of association between these variables.
+These models can help you better understand the relationship between homeless deaths and shelter usage trends, allowing you to identify potential factors influencing mortality among homeless individuals and inform targeted interventions and policies.
+
+User
+out of these suggestions, what is the easiest to work with?
+ChatGPT
+The easiest model to work with may depend on your familiarity with statistical techniques and the software you have access to. However, if we're considering simplicity in terms of ease of implementation and interpretation, Poisson regression might be the most straightforward choice.
+
+Poisson regression is relatively simple to understand conceptually, especially if you're already familiar with linear regression. It directly models count data and estimates the relationship between the counts of deaths and the counts of individuals returning to shelters or moving to housing per year. Additionally, it is widely available in statistical software packages like R, Python (using libraries like Statsmodels or PyMC3), and others, making it accessible for many researchers.
+
+Another advantage of Poisson regression is that it provides interpretable coefficients, allowing you to directly assess the impact of the independent variables (e.g., counts of shelter returns, counts of moves to housing) on the dependent variable (count of deaths). This can be helpful for understanding the relationship between shelter usage trends and mortality among homeless individuals.
+
+Overall, Poisson regression could be considered relatively easy to work with compared to other models, especially if you're new to statistical modeling or if you prioritize simplicity and interpretability.
+
+ok let's simulate this data:
+
+I want to make a table so that it has the following columns:
+Year(2018-2022), Number of Homeless Deaths, Number of People returning to Homeless Shelters.
+
+the general idea is that as # of homeless shelter returns increase, so too does # of homeless deaths
+
+please do this in R. 
+
+4 / 4
+
+ChatGPT
+Sure, let's simulate the data in R. We'll create a table with three columns: "Year", "Number of Homeless Deaths", and "Number of People Returning to Homeless Shelters". We'll generate data for the years 2018 to 2022, with increasing counts of homeless shelter returns and corresponding counts of homeless deaths.
+
+R
+Copy code
+# Set seed for reproducibility
+set.seed(123)
+
+# Generate data for the years 2018 to 2022
+years <- 2018:2022
+
+# Generate counts of homeless shelter returns
+returns <- seq(1000, 1500, length.out = length(years)) + rnorm(length(years), mean = 0, sd = 100)
+
+# Generate counts of homeless deaths (increasing with shelter returns)
+deaths <- returns * 0.02 + rnorm(length(years), mean = 0, sd = 50)
+
+# Create a data frame
+data <- data.frame(Year = years,
+                   `Number of Homeless Deaths` = round(deaths),
+                   `Number of People Returning to Homeless Shelters` = round(returns))
+
+# Print the data frame
+print(data)
+This code will generate a table with the desired columns for the years 2018 to 2022, where the number of homeless deaths increases with the number of people returning to homeless shelters. Adjust the parameters (e.g., mean, standard deviation) in the rnorm() function to control the variability of the simulated data.
+
+month_mapping <- c("January" = 1, "February" = 2, "March" = 3, "April" = 4, "May" = 5, "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10, "November" = 11, "December" = 12)
+
+# Cleaned death data with year and month
+cleaned_death_data <- raw_death_data %>%
+  # Select only the "Year of death", "Month of death", and "Count" columns
+  select(`Year of death`, `Month of death`, Count) %>%
+  # Filter rows where the year is between 2018 and 2022
+  filter(`Year of death` >= 2018 & `Year of death` <= 2022) %>%
+  # Group by "Year of death" and "Month of death" and summarize the counts
+  group_by(`Year of death`, `Month of death`) %>%
+  # summarize(Count = sum(Count)) %>%
+  # Convert month names to numeric values using custom mapping
+  mutate(Month = month_mapping[`Month of death`])
+
+
+# Cleaned shelter data with year and month
+cleaned_shelter_data <- raw_shelter_data %>%
+  # Select only the "date.mmm.yy.", "population_group", and "returned_to_shelter" columns
+  select(date.mmm.yy., population_group, returned_to_shelter) %>%
+  # Filter rows where the year is between 2018 and 2022
+  filter(as.integer(substring(date.mmm.yy., nchar(date.mmm.yy.) - 1)) >= 18 & as.integer(substring(date.mmm.yy., nchar(date.mmm.yy.) - 1)) <= 22) %>%
+  # Filter rows where the population_group is "All Population"
+  filter(population_group == "All Population") %>%
+  # Extract year and month from "date.mmm.yy." column
+  mutate(Year = paste0("20", substring(date.mmm.yy., nchar(date.mmm.yy.) - 1)),
+         Month = match(substring(date.mmm.yy., 1, 3), month.abb)) %>%
+  # Select only the "Year", "Month", and "returned_to_shelter" columns
+  select(Year, Month, returned_to_shelter) %>%
+  # Group by "Year" and "Month" and summarize the counts
+  group_by(Year, Month) %>%
+  summarize(returned_to_shelter = sum(returned_to_shelter))
+
+# Merge cleaned_death_data and cleaned_shelter_data
+clean_data <- 
+
+I want to merge cleaned_death_data and cleaned_shelter_data based such that the years and months are the same. I only want to keep the rows of year, month returned to shelter and count
+I think to do this, I would have to convert Year of death into Year for cleaned_death_data.
+ChatGPT
+Yes, to merge cleaned_death_data and cleaned_shelter_data based on the same years and months, you should ensure that both datasets have the same column names for years and months. In this case, you'll need to rename the "Year of death" column in cleaned_death_data to "Year" to match the column name in cleaned_shelter_data.
+
+Here's the continuation of your code:
+
+R
+Copy code
+# Rename "Year of death" column in cleaned_death_data to "Year"
+cleaned_death_data <- cleaned_death_data %>%
+  rename(Year = `Year of death`)
+
+# Merge cleaned_death_data and cleaned_shelter_data
+clean_data <- merge(cleaned_death_data, cleaned_shelter_data, by = c("Year", "Month"), all = TRUE) %>%
+  select(Year, Month, returned_to_shelter, Count)
+
+# Print the merged data
+print(clean_data)
+This code renames the "Year of death" column in cleaned_death_data to "Year", then merges the two datasets based on the "Year" and "Month" columns, and finally selects only the columns for "Year", "Month", "returned_to_shelter", and "Count". This ensures that the merged clean_data dataframe only contains the desired columns from both datasets, with matching years and months. Let me know if you have any questions!
+
+User
+clean_data <- merge(cleaned_death_data, cleaned_shelter_data, by = c("Year", "Month"), all = TRUE) %>%
+  select(Year, Month, returned_to_shelter, Count)
+
+here, how can I also get rid of any values where Month is NA
+ChatGPT
+You can achieve this by adding an additional filtering step after merging the datasets to remove any rows where the "Month" column is NA. Here's how you can do it:
+
+R
+Copy code
+# Merge cleaned_death_data and cleaned_shelter_data
+clean_data <- merge(cleaned_death_data, cleaned_shelter_data, by = c("Year", "Month"), all = TRUE) %>%
+  select(Year, Month, returned_to_shelter, Count) %>%
+  filter(!is.na(Month))
+
+# Print the merged data
+print(clean_data)
+This code first merges the datasets based on the "Year" and "Month" columns, then selects the desired columns, and finally filters out any rows where the "Month" column is NA using filter(!is.na(Month)). This ensures that only rows with valid month values are retained in the clean_data dataframe. Let me know if you have any questions!
+
+alright so now we're testing the cleaned_data which has the following columns:
+Returned.to.shelter, Deaths, Month.Year
+
+I just wanna do some simple tests, here's what I have so far
+
+
+#### Workspace setup ####
+library(tidyverse)
+library(here)
+library(haven)
+
+# load data
+cleaned_data = read.csv(file=here("data/clean_data/cleaned_data.csv"))
+
+#### Test data ####
+
+
+
+something like if Returned.to.shelter are all numbers, and >=0.
+Deaths are all numbers, and >=0.
+
+check if there are a total of 60 rows since the data is for 5 years
+
+in Month.Year, the format is month/year (1/2018, 2/2018, .., 12/2018), so I want to check if the months are between 1 and 12
+
+make sure to only use the 3 packages above only
+
+2 / 2
+
+
+ChatGPT
+Certainly! You can conduct these tests using the dplyr package functions. Here's how you can perform the tests:
+
+R
+Copy code
+# Check if Returned to shelter and Deaths are numeric and non-negative
+test1 <- all(cleaned_data$Returned.to.shelter >= 0) & all(cleaned_data$Deaths >= 0)
+
+# Check if there are a total of 60 rows
+test2 <- nrow(cleaned_data) == 60
+
+# Check if Month.Year format is correct (1/2018, 2/2018, ..., 12/2018)
+test3 <- all(sapply(strsplit(cleaned_data$Month.Year, "/"), function(x) as.integer(x[1]) >= 1 & as.integer(x[1]) <= 12))
+
+# Combine all tests
+all_tests <- test1 & test2 & test3
+
+# Print the results of each test
+print(test1)
+print(test2)
+print(test3)
+print(all_tests)
+This code checks each criterion separately:
+
+test1: Checks if both "Returned to shelter" and "Deaths" are numeric and non-negative.
+test2: Checks if there are a total of 60 rows in the dataframe.
+test3: Checks if the format of "Month.Year" is correct, i.e., if the months are between 1 and 12.
+all_tests: Combines all the individual tests, indicating whether all conditions are met.
+Let me know if you need further assistance!
+
+To cite package ‘knitr’ in publications use:
+
+  Xie Y (2023). _knitr: A General-Purpose Package for
+  Dynamic Report Generation in R_. R package version
+  1.43, <https://yihui.org/knitr/>.
+
+  Yihui Xie (2015) Dynamic Documents with R and
+  knitr. 2nd edition. Chapman and Hall/CRC. ISBN
+  978-1498716963
+
+  Yihui Xie (2014) knitr: A Comprehensive Tool for
+  Reproducible Research in R. In Victoria Stodden,
+  Friedrich Leisch and Roger D. Peng, editors,
+  Implementing Reproducible Computational Research.
+  Chapman and Hall/CRC. ISBN 978-1466561595
+
+To see these entries in BibTeX format, use
+'print(<citation>, bibtex=TRUE)', 'toBibtex(.)', or
+set 'options(citation.bibtex.max=999)'
+
+I wanna see it in bibtex format can you write the command to do so for me
+ChatGPT
+Certainly! Here's the command to print the citation for the 'knitr' package in BibTeX format:
+
+R
+Copy code
+print(citation("knitr"), bibtex = TRUE)
+Running this command will output the citation information for the 'knitr' package in BibTeX format. You can then use this BibTeX entry in your LaTeX document for citations.
+
+where in this intro can I mention the estimand?:
+
+
+In Toronto, homelessness remains a persistent social issue with significant implications for public health and social welfare [@homelessNewsArticle]. Amidst efforts to address homelessness, understanding the dynamics between shelter usage patterns and mortality risks among individuals experiencing homelessness is crucial. This paper looks into this relationship, aiming to analyze the underlying factors that contribute to mortality within this vulnerable population.
+
+Using data sets sourced from Open Data Toronto [@opendatatoronto], this study examines the interplay between homeless shelter usage trends, particularly returns to homeless shelters per month, and monthly mortality among individuals experiencing homelessness in Toronto. By analyzing patterns of shelter occupancy, transitions, and occurrences of death on a monthly basis, I aim to highlight the connections between shelter access, economic instability, and mortality risks faced by those without stable housing. Additionally, I will employ a poisson regression model to further explore the relationships between shelter return patterns and mortality outcomes, providing statistical insights into this dynamic.
+
+The findings of this study reveal a notable correlation between the pattern of returning to shelters, and an increased risk of mortality during certain months. This contributes to the understanding of challenges faced by individuals experiencing homelessness and emphasizes the importance of targeted interventions to address mortality risks within this population.
+
+By discussing these issues and raising awareness of the interconnected factors influencing homelessness and mortality, this paper aims to encourage reflection on potential ways to support individuals experiencing homelessness in Toronto. Through this exploration, I aim to underscore the significance of addressing the underlying causes of homelessness and advocating for approaches to safeguard the well-being and dignity of all members of society.
+ChatGPT
+You can mention the estimand in the paragraph where you discuss the planned analysis methods, particularly when introducing the Poisson regression model. Here's how you could incorporate it:
+
+"Additionally, I will employ a Poisson regression model to further explore the relationships between shelter return patterns and mortality outcomes, providing statistical insights into this dynamic. The estimand of interest in this analysis is the effect of returns to homeless shelters per month on the monthly mortality rate among individuals experiencing homelessness. By estimating this parameter, we aim to quantify the impact of shelter usage patterns on mortality risks within this vulnerable population."
+
+This addition clarifies the specific parameter of interest in your analysis and provides context for the statistical methodology you plan to use.
