@@ -41,41 +41,40 @@ By discussing these issues and raising awareness of the interconnected factors i
 
 This paper uses data sets from OpenDataToronto [@opendatatoronto], which provides access to freely available digital data from the city of Toronto. In particular, the "Deaths of People Experiencing Homelessness" and "Toronto Shelter System Flow" data sets are being utilized for the purposes of analyzing the number of people returning to homeless shelters, and the number of homeless people who passed away over the time period of 2018 to 2022.
 
-All data collection, analysis, modeling and visualization was done using R [@citeR]. In particular, the following packages were utilized: tidyverse [@tidyverse], ggplot2 [@citeggplot2], here [@citehere], knitr [@citeknitr], arrow [@citearrow], dplyr [@citedplyr], and haven [@citehaven].
+The "Deaths of People Experiencing Homelessness" is very simple, and consists of the year and months (starting January 2018), a unique id for each month, and the count of homeless persons who passed away in that month in Toronto. All columns in this dataset are numeric, with the exception of 'Month of death', which consists of characters. For this analysis, I have utilized the columns of 'Year of death', 'Month of death', and 'Count' only.
+
+The "Toronto Shelter System Flow" is a more complex dataset, consisting of many columns such as 'date(mmm-yy)', and 'population_group', which contain characters, and details regarding the population relevant to homeless shelters in Toronto, such as 'returned_from_housing' or 'became_inactive', which are numeric in nature.
+
+There were no similar data sets to my knowledge. Furthermore, the two data sets used in this paper are ideal as they are coming directly from the city of Toronto, and the organizations and agencies dealing with homeless shelters and recording the deaths of homeless individuals. As such, alternate data sets do not need to be considered.
+
+The data sets were cleaned to reformat the date into 'mm/yyyy' format. This allowed for me to extract and merge the relevant information from both data sets easily into one table. This aided in utilizing and having access to the necessary information only when making graphs and models for analysis purposes.
+
+The most important variables are 'Month/Year', 'Deaths', and 'Returns to Homeless Shelters'. 'Month/Year' is the independent variable for both @fig-1 and @fig-2. 'Deaths' is the dependent variable for @fig-1, while 'Returns to Homeless Shelters' is the dependent variable for @fig-2. All of these variables were also key for the Poisson regression model utilized in this analysis, and more details can be seen in the Model section.
+
+All data collection, analysis, modeling and visualization was done using R [@citeR], with the aid of the RStudio IDE [@citeRStudio] to streamline the process. In particular, the following packages were utilized: tidyverse [@tidyverse], ggplot2 [@citeggplot2], here [@citehere], knitr [@citeknitr], arrow [@citearrow], dplyr [@citedplyr], and haven [@citehaven].
 
 # Measurement
 
+The "Deaths of People Experiencing Homelessness" data set is maintained by the Toronto Public Health, particularly in regards to data collection, reporting and analysis [@opendatatoronto]. It is refreshed semi-annually. Their information is supplied to them by agencies such as the SSHA, alongside other social service agencies relevant to homelessness. 
+
+On the other hand, the "Toronto Shelter System Flow" gets its data from an information management system that is used to operate shelter related services that are funded by the City of Toronto, and it is updated on a monthly basis [@opendatatoronto].
+
 # Model
 
-MAKE A NULL HYPOTHESIS AND ALTERNATE HYPOTHESIS FOR POISSON REGRESSION
+## Model justification
 
-```{r}
-#| include: false
-#| warning: false
-#| message: false
-
-
-# THIS IS TEMPORARILY HERE -- POISSON MODEL GRAPH
-#predicted_counts <- predict(poisson_model, type = "response")
-
-# Create a scatter plot of observed vs. predicted counts
-#plot(cleaned_data$Returned.to.shelter, cleaned_data$Deaths, 
-#     xlab = "Returned to shelter", ylab = "Deaths",
-#     main = "Observed vs. Predicted Counts",
-#     pch = 16, col = "blue")
-#lines(cleaned_data$Returned.to.shelter, predicted_counts, col = "red", type = "l", lwd = 2)
-#legend("topright", legend = c("Observed", "Predicted"), 
-#       col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1), lwd = #c(NA, 2))
-```
+To model the relationship between the number of homeless deaths and the number of homeless individuals returning to shelters on a monthly basis, a Poisson regression model was utilized. Such a model is suitable for this purpose because the number of deaths, as well as the number of people returning to shelters, are both instances of count data. The outcome variable here represents the counts of events occurring within a fixed interval.
 
 ## Model set-up
 
+The model is specified as follows:
+$$log(Expected Number of Homeless Deaths) = \beta_{0} + \beta{1}(Number of Individuals Returning to Shelters)$$
+Here, $\beta_{0}$ represents the intercept, or the expected log count of homeless deaths when the number of people returning to shelters is 0.
 
-### Model justification
-
+$\beta_{1}$ represents the coefficient for the predictor variable, indicating the change in the expected log count of homeless deaths for each unit increase in the number of individuals returning to homeless shelters.
 
 # Results
-```{r graph1, fig.cap="temp"}
+```{r graph1, fig.cap="Deaths of Homeless Individuals in Toronto per month (2018 - 2022)"}
 #| echo: false
 #| warning: false
 #| message: false
@@ -88,14 +87,14 @@ cleaned_data$Month.Year <- factor(cleaned_data$Month.Year, levels = unique(clean
 
 ggplot(cleaned_data, aes(x = Month.Year, y = Deaths)) +
   geom_line(aes(group = 1), color = "red", size = 1) +
-  labs(x = "Month/Year", y = "Deaths", title = "Monthly Homeless Deaths") +
+  labs(x = "Month/Year", y = "Deaths") +
   scale_x_discrete(breaks = cleaned_data$Month.Year[seq(1, length(cleaned_data$Month.Year), by = 6)]) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 @fig-1 shows that deaths among homeless people in Toronto, while fluctuating significantly over the months, are following a general trend of growth. Each year, the deaths have a consistent peak around winter time, especially near the month of January. The highest number of homeless deaths in Toronto seem to have occurred in the November of 2021, while the lowest amount of deaths recorded are in December of 2018.
 
-```{r graph2, fig.cap="temp2"}
+```{r graph2, fig.cap="Number of Individuals Returning to Homeless Shelters per Month (2018 - 2022)"}
 #| echo: false
 #| warning: false
 #| message: false
@@ -108,7 +107,7 @@ cleaned_data$Month.Year <- factor(cleaned_data$Month.Year, levels = unique(clean
 
 ggplot(cleaned_data, aes(x = Month.Year, y = Returned.to.shelter)) +
   geom_line(aes(group = 1), color = "blue", size = 1) +
-  labs(x = "Month/Year", y = "Returns to Homeless Shelters", title = "Monthly Returns to Homeless Shelters") +
+  labs(x = "Month/Year", y = "Returns to Homeless Shelters") +
   scale_x_discrete(breaks = cleaned_data$Month.Year[seq(1, length(cleaned_data$Month.Year), by = 6)]) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -116,7 +115,7 @@ ggplot(cleaned_data, aes(x = Month.Year, y = Returned.to.shelter)) +
 
 @fig-2, while also fluctuating significantly, seems to follow a negative pattern for returns of homeless people to shelters. The returns are at their peak in November of 2019. In contrast, September of 2022 saw the least amount of Toronto's homeless population return to a shelter.
 
-```{r graph3, fig.cap="temp3"}
+```{r graph3, fig.cap="Summary of the Results from The Poisson Regression Model"}
 #| echo: false
 #| warning: false
 #| message: false
@@ -140,6 +139,13 @@ The estimated coefficient for Returned to shelter is approximately -0.0011 (with
 
 # Discussion
 
+Looking at both @fig-1 and @fig-2, it can be seen that both graphs are growing in opposite directions over the same period of time. Homeless deaths seem to be rising, while the amount of homeless people returning to shelters seems to be in decline. This implies that when more homeless people returned to shelters, the mortality within this population was a lot lower. This is further supported by the Poisson regression model run on this same data, which posits that for each homeless person that returns to a shelter, the average number of deaths in the homeless population decreases, as seen in @fig-3. 
+
+Thus, data suggests that homeless shelters are indeed beneficial towards the homeless population of Toronto from a mortality standpoint. Then, why is that as time passes, returns to homeless shelters decrease? Perhaps the issue is not as straightforward as it initially seems. @shelterdeathtoronto highlights that both 2021 and 2022 consecutively saw over 100 deaths among homeless shelter users in Toronto. This implies that homeless people in Toronto are at risk of death regardless of having access to shelter services. Another implication could be that the services and resources provided by these shelters are inadequate to ensure homeless survival, which could be why the homeless population in Toronto has progressively chosen to return to shelters less with the passage of
+
+
+
+Limitations: cause of death not known in data sets.
 
 \newpage
 
