@@ -3,8 +3,8 @@ title: "Datasheet for 'Deaths of People Experiencing Homelessness' and 'Toronto 
 author: 
   - Maroosh Gillani
 thanks: "Code and data are available at: https://github.com/Maroosh-Gillani/homeless_mortality"
-date: "`r Sys.time()`"
-date-format: "D MMMM YYYY"
+date: today
+date-format: long
 format: pdf
 number-sections: true
 bibliography: references.bib
